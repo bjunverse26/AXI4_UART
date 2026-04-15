@@ -7,7 +7,7 @@
 이 프로젝트는 AXI4-Lite 기반 register map을 통해 UART 송수신 경로를 제어하는 것을 목표로 합니다.  
 AXI master는 `CTRL`, `STATUS`, `TXDATA`, `RXDATA` register를 통해 UART Core에 접근하고, 내부 UART Core는 Baud Generator, TX/RX FIFO, UART TX/RX block으로 구성됩니다.
 
-검증 구조는 AXI4-Lite 프로젝트와 같은 틀로 맞췄습니다. Testbench는 directed scenario와 결과 summary를 담당하고, SVA는 AXI4-Lite 필수 protocol assertion과 UART 전용 register behavior assertion을 함께 확인합니다.
+검증은 testbench와 SVA를 분리한 구조로 구성했습니다. Testbench는 directed scenario와 결과 summary를 담당하고, SVA는 AXI4-Lite 필수 protocol assertion과 UART 전용 register behavior assertion을 함께 확인합니다.
 
 ## 한눈에 보기
 
