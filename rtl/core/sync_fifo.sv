@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module sync_fifo #(
     parameter ADDR_WIDTH = 4
 ) (

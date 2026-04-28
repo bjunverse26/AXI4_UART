@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module uart_core #(
     parameter CLK_FREQ          = 100_000_000,
     parameter BAUD_RATE         = 115_200,

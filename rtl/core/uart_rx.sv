@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module uart_rx (
     input  logic            clk,
     input  logic            resetn,
