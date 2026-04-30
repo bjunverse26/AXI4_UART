@@ -35,6 +35,10 @@ module AxiUartProtocolSva (
     input logic        i_tx_full
 );
 
+    //==============================================================================
+    // Protocol Constants
+    //==============================================================================
+
     localparam logic [1:0] RESP_OKAY   = 2'b00;
     localparam logic [1:0] RESP_SLVERR = 2'b10;
     localparam logic [1:0] RESP_DECERR = 2'b11;
@@ -45,6 +49,10 @@ module AxiUartProtocolSva (
     localparam logic [31:0] ADDR_BAD    = 32'h0000_0010;
 
     integer r_sva_error_count = 0;
+
+    //==============================================================================
+    // Handshake Sequences
+    //==============================================================================
 
     sequence aw_hs;
         i_awvalid && i_awready;
@@ -57,6 +65,10 @@ module AxiUartProtocolSva (
     sequence ar_hs;
         i_arvalid && i_arready;
     endsequence
+
+    //==============================================================================
+    // Protocol Properties
+    //==============================================================================
 
     property valid_holds_until_ready(logic valid_sig, logic ready_sig);
         @(posedge i_aclk) disable iff (!i_aresetn)
@@ -73,6 +85,10 @@ module AxiUartProtocolSva (
         @(posedge i_aclk) disable iff (!i_aresetn)
         ar_hs |-> ##[0:16] i_rvalid;
     endproperty
+
+    //==============================================================================
+    // Assertions
+    //==============================================================================
 
     assert_aw_valid_stable: assert property (valid_holds_until_ready(i_awvalid, i_awready))
         else begin r_sva_error_count++; $error("[SVA FAIL] AWVALID dropped before AWREADY"); end
@@ -154,6 +170,10 @@ module AxiUartProtocolSva (
         |-> ##[0:16] (i_bvalid && (i_bresp == RESP_DECERR))
     ) else begin r_sva_error_count++; $error("[SVA FAIL] Invalid write did not return DECERR"); end
 
+    //==============================================================================
+    // Coverage
+    //==============================================================================
+
     cover_aw_handshake: cover property (@(posedge i_aclk) i_awvalid && i_awready);
     cover_w_handshake : cover property (@(posedge i_aclk) i_wvalid  && i_wready);
     cover_b_handshake : cover property (@(posedge i_aclk) i_bvalid  && i_bready);
@@ -165,6 +185,10 @@ module AxiUartProtocolSva (
         ##[1:256] i_arvalid && i_arready && (i_araddr == ADDR_RXDATA)
         ##[0:16] i_rvalid && i_rready && (i_rresp == RESP_OKAY)
     );
+
+    //==============================================================================
+    // Final Summary
+    //==============================================================================
 
     final begin
         if (r_sva_error_count == 0) begin

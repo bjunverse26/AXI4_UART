@@ -10,6 +10,10 @@
 
 `timescale 1ns / 1ps
 
+//==============================================================================
+// Testbench Interface
+//==============================================================================
+
 interface AxiUartIf #(
     parameter int AXI_ADDR_WIDTH = 32,
     parameter int AXI_DATA_WIDTH = 32,
@@ -43,6 +47,10 @@ endinterface
 
 module TbAxiUartSva;
 
+    //==============================================================================
+    // Testbench Parameters And State
+    //==============================================================================
+
     localparam int CLK_FREQ       = 32;
     localparam int BAUD_RATE      = 1;
     localparam int AXI_ADDR_WIDTH = 32;
@@ -66,6 +74,10 @@ module TbAxiUartSva;
     int unsigned r_test_pass;
     int unsigned r_test_fail;
 
+    //==============================================================================
+    // Interface Instance
+    //==============================================================================
+
     AxiUartIf #(
         .AXI_ADDR_WIDTH (AXI_ADDR_WIDTH),
         .AXI_DATA_WIDTH (AXI_DATA_WIDTH),
@@ -73,6 +85,10 @@ module TbAxiUartSva;
     ) axi_if (
         .i_s_axi_aclk (w_aclk)
     );
+
+    //==============================================================================
+    // DUT Instantiation
+    //==============================================================================
 
     AxiUart #(
         .CLK_FREQ        (CLK_FREQ),
@@ -106,7 +122,15 @@ module TbAxiUartSva;
         .i_rx            (axi_if.i_rx)
     );
 
+    //==============================================================================
+    // UART Loopback Connection
+    //==============================================================================
+
     assign axi_if.i_rx = axi_if.o_tx;
+
+    //==============================================================================
+    // Protocol Monitor
+    //==============================================================================
 
     AxiUartProtocolSva u_sva (
         .i_aclk     (axi_if.i_s_axi_aclk),
@@ -133,10 +157,18 @@ module TbAxiUartSva;
         .i_tx_full  (u_dut.w_tx_full)
     );
 
+    //==============================================================================
+    // Clock Generation
+    //==============================================================================
+
     initial begin
         w_aclk = 1'b0;
         forever #(CLK_PERIOD / 2) w_aclk = ~w_aclk;
     end
+
+    //==============================================================================
+    // Test Sequence
+    //==============================================================================
 
     initial begin
         init_interface();
@@ -151,6 +183,10 @@ module TbAxiUartSva;
         report_summary();
     end
 
+    //==============================================================================
+    // Utility Functions
+    //==============================================================================
+
     function automatic string resp_to_string(input logic [1:0] resp);
         case (resp)
             2'b00: resp_to_string = "OKAY";
@@ -159,6 +195,10 @@ module TbAxiUartSva;
             2'b11: resp_to_string = "DECERR";
         endcase
     endfunction
+
+    //==============================================================================
+    // Initialization And Reset Tasks
+    //==============================================================================
 
     task automatic init_interface();
         begin
@@ -211,6 +251,10 @@ module TbAxiUartSva;
             end
         end
     endtask
+
+    //==============================================================================
+    // Bus Driver Tasks
+    //==============================================================================
 
     task automatic write_same_cycle(input logic [31:0] addr, input logic [31:0] data, input logic [3:0] strb, output logic [1:0] resp);
         begin
@@ -265,6 +309,10 @@ module TbAxiUartSva;
         end
     endtask
 
+    //==============================================================================
+    // Read Driver Tasks
+    //==============================================================================
+
     task automatic read_data(input logic [31:0] addr, output logic [31:0] data, output logic [1:0] resp);
         begin
             axi_if.i_s_axi_araddr  = addr;
@@ -297,6 +345,10 @@ module TbAxiUartSva;
             end
         end
     endtask
+
+    //==============================================================================
+    // Directed Test Scenarios
+    //==============================================================================
 
     task automatic run_initial_status_case();
         logic [1:0] rd_resp;
@@ -396,6 +448,10 @@ module TbAxiUartSva;
             check_resp(RESP_SLVERR, wr_resp, "Zero strobe TXDATA write response");
         end
     endtask
+
+    //==============================================================================
+    // Summary Reporting
+    //==============================================================================
 
     task automatic report_summary();
         begin
